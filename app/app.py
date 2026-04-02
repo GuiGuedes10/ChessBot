@@ -5,7 +5,8 @@ from IA_chess import IaChess
 
 app = Flask(__name__)
 
-board = chess.Board()
+# board = chess.Board()
+board = chess.Board("8/P7/8/8/8/8/8/k6K w - - 0 1")
 
 @app.route("/")
 def index():
@@ -28,11 +29,14 @@ def index():
 @app.route("/jogar", methods=["POST"])
 def jogar():
     move_uci = request.form.get("move").strip().lower()
-    
     try:
         move = chess.Move.from_uci(move_uci)
         
+        if board.piece_at(move.from_square).piece_type == chess.PAWN and chess.square_rank(move.to_square) in [0, 7]:
+            move = chess.Move(move.from_square, move.to_square, promotion=chess.QUEEN)
+        
         if move in board.legal_moves:
+            
             board.push(move)
 
             if board.turn == chess.BLACK:
